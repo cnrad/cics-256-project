@@ -1,10 +1,14 @@
-#include <Arduino.h>
+#include "gyro/gyro.h"
+#include "matrix/matrix.h"
 
-void setup(){
-  Serial.begin(115200);
+void setup()
+{
+    gyroSetup();
+    matrixSetup();
 }
 
-void loop(){
-  Serial.println("Hello World!");
-  delay(1000);
+void loop()
+{
+    gyroLoop();
+    matrixLoop();
 }
