@@ -5,6 +5,7 @@
 #include <Wire.h>
 #include <Arduino.h>
 #include "camera.h"
+#include "../matrix/matrix.h"
 
 int IRsensorAddress = 0xB0;
 // int IRsensorAddress = 0x58;
@@ -126,6 +127,8 @@ void cameraLoop()
         Serial.print(int(Iy[i]));
         if (i < 3)
             Serial.print(",");
+        setCursor(Ix[i], Iy[i]);
+        delay(20);
     }
     Serial.println("");
     delay(15);

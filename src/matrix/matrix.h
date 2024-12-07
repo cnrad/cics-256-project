@@ -8,6 +8,7 @@
 #include <Adafruit_NeoPixel.h>
 
 void matrixSetup();
+void setCursor(int x, int y);
 void matrixLoop();
 void colorWipe(uint32_t c, uint8_t wait);
 void rainbow(uint8_t wait);

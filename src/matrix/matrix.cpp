@@ -1,96 +1,58 @@
-#include <Adafruit_NeoPixel.h>
+#include <Adafruit_NeoMatrix.h>
 #include "matrix.h"
 
 #define PIN 5         // Arduino pin 6 to DIN of 8x32 matrix.
 #define LED_COUNT 256 // 8x32 = 256 NeoPixel leds
-#define BRIGHTNESS 3  // to reduce current for 256 NeoPixels
+#define BRIGHTNESS 30 // to reduce current for 256 NeoPixels
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, PIN, NEO_GRB + NEO_KHZ800);
-
+#define MATRIX_WIDTH 32
+#define MATRIX_HEIGHT 8
+#define MATRIX_LAYOUT (NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG)
+// MATRIX DECLARATION:
+// Parameter 1 = width of NeoPixel matrix
+// Parameter 2 = height of matrix
+// Parameter 3 = pin number (most are valid)
+// Parameter 4 = matrix layout flags, add together as needed:
+//   NEO_MATRIX_TOP, NEO_MATRIX_BOTTOM, NEO_MATRIX_LEFT, NEO_MATRIX_RIGHT:
+//     Position of the FIRST LED in the matrix; pick two, e.g.
+//     NEO_MATRIX_TOP + NEO_MATRIX_LEFT for the top-left corner.
+//   NEO_MATRIX_ROWS, NEO_MATRIX_COLUMNS: LEDs are arranged in horizontal
+//     rows or in vertical columns, respectively; pick one or the other.
+//   NEO_MATRIX_PROGRESSIVE, NEO_MATRIX_ZIGZAG: all rows/columns proceed
+//     in the same order, or alternate lines reverse direction; pick one.
+//   See example below for these values in action.
+// Parameter 5 = pixel type flags, add together as needed:
+//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
+//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
+//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
+//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(MATRIX_WIDTH, MATRIX_HEIGHT, PIN,
+                                               MATRIX_LAYOUT,
+                                               NEO_GRB + NEO_KHZ800);
 void matrixSetup()
 {
-  strip.begin();
-  strip.show();                    // Initialize all pixels to 'off'
-  strip.setBrightness(BRIGHTNESS); // overall brightness
+  matrix.begin();
+  matrix.show();                    // Initialize all pixels to 'off'
+  matrix.setBrightness(BRIGHTNESS); // overall brightness
 }
 
 void matrixLoop()
 {
-  // Some example procedures showing how to display to the pixels:
-  colorWipe(strip.Color(255, 0, 0), 5); // Red
-  colorWipe(strip.Color(0, 255, 0), 5); // Green
-  colorWipe(strip.Color(0, 0, 255), 5); // Blue
+}
 
-  // Send a theater pixel chase in...
-  theaterChase(strip.Color(255, 255, 255), 50); // White
+void setCursor(int x, int y)
+{
+  if (x != 32 && y != 8)
+  {
+    matrix.clear();
 
-  rainbow(1);
-  colorWipe(strip.Color(0, 0, 0), 1);
+    // int index = y * 32 + x; // Calculate the index for the 8x32 matrix
+    matrix.drawPixel(x - 1, y, matrix.Color(255, 255, 255));
+    matrix.drawPixel(x, y, matrix.Color(255, 255, 255));
+    matrix.drawPixel(x, y - 1, matrix.Color(255, 255, 255));
+    matrix.drawPixel(x - 1, y - 1, matrix.Color(255, 255, 255));
+    matrix.show();
+  }
 }
 
 // Fill the dots one after the other with a color
-void colorWipe(uint32_t c, uint8_t wait)
-{
-  for (int i = 0; i < strip.numPixels(); i++)
-  {
-    strip.setPixelColor(i, c);
-    strip.show();
-    delay(wait);
-  }
-}
-
-void rainbow(uint8_t wait)
-{
-  for (int j = 0; j < 1000; j++)
-  {
-    for (int i = 0; i < strip.numPixels(); i++)
-    {
-      strip.setPixelColor(i, Wheel((i + j) & 255));
-    }
-    strip.show();
-    delay(wait);
-  }
-}
-
-// Theatre-style crawling lights.
-void theaterChase(uint32_t c, uint8_t wait)
-{
-  for (int j = 0; j < 10; j++) // do 10 cycles of chasing
-  {
-    for (int q = 0; q < 3; q++)
-    {
-      for (int i = 0; i < strip.numPixels(); i = i + 3)
-      {
-        strip.setPixelColor(i + q, c); // turn every third pixel on
-      }
-      strip.show();
-
-      delay(wait);
-
-      for (int i = 0; i < strip.numPixels(); i = i + 3)
-      {
-        strip.setPixelColor(i + q, 0); // turn every third pixel off
-      }
-    }
-  }
-}
-
-// Input a value 0 to 255 to get a color value.
-// The colours are a transition r - g - b - back to r.
-uint32_t Wheel(byte WheelPos)
-{
-  if (WheelPos < 85)
-  {
-    return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-  }
-  else if (WheelPos < 170)
-  {
-    WheelPos -= 85;
-    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  }
-  else
-  {
-    WheelPos -= 170;
-    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  }
-}
