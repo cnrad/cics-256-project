@@ -2,22 +2,15 @@
 #include "matrix/matrix.h"
 #include "camera/camera.h"
 
-#define BUTTON 26
 void setup()
 {
     // gyroSetup();
     matrixSetup();
     cameraSetup();
-    pinMode(BUTTON, INPUT);
 }
 
 void loop()
 {
-    int buttonState = digitalRead(BUTTON);
-    if (buttonState == HIGH)
-    {
-        Serial.println("Button pressed");
-    }
     // gyroLoop();
     //  matrixLoop();
     cameraLoop();

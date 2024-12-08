@@ -5,6 +5,8 @@
 #define LED_COUNT 256 // 8x32 = 256 NeoPixel leds
 #define BRIGHTNESS 30 // to reduce current for 256 NeoPixels
 
+#define BUTTON 26
+
 #define MATRIX_WIDTH 32
 #define MATRIX_HEIGHT 8
 #define MATRIX_LAYOUT (NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG)
@@ -29,30 +31,57 @@
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(MATRIX_WIDTH, MATRIX_HEIGHT, PIN,
                                                MATRIX_LAYOUT,
                                                NEO_GRB + NEO_KHZ800);
+
+int rgb_cycle = 10;
+int rgb_index = 0;
+
 void matrixSetup()
 {
   matrix.begin();
   matrix.show();                    // Initialize all pixels to 'off'
   matrix.setBrightness(BRIGHTNESS); // overall brightness
+
+  pinMode(BUTTON, INPUT);
 }
 
 void matrixLoop()
 {
 }
 
+// Arguments x and y are the original 1023x1023 coordinates from the camera
 void setCursor(int x, int y)
 {
-  if (x != 32 && y != 8)
-  {
-    matrix.clear();
+  // Convert the 1023x1023 coordinates to 32x8 coordinates, handle edge cases idk
+  x = map(x, 0, 1023, 1, 32);
+  y = map(y, 0, 800, 0, 8);
 
-    // int index = y * 32 + x; // Calculate the index for the 8x32 matrix
-    matrix.drawPixel(x - 1, y, matrix.Color(255, 255, 255));
-    matrix.drawPixel(x, y, matrix.Color(255, 255, 255));
-    matrix.drawPixel(x, y - 1, matrix.Color(255, 255, 255));
-    matrix.drawPixel(x - 1, y - 1, matrix.Color(255, 255, 255));
+  uint16_t colors[] = { matrix.Color(255, 0, 0), matrix.Color(255, 255, 0), matrix.Color(0, 255, 0), matrix.Color(0, 255, 255), matrix.Color(255, 0, 255), matrix.Color(0, 0, 255) };
+
+
+    uint16_t color = matrix.Color(180, 180, 180);
+
+    int buttonState = digitalRead(BUTTON);
+    if (buttonState == LOW) matrix.clear();
+
+    if (buttonState == HIGH) {
+      color = colors[map(rgb_index, 0, rgb_cycle, 0, 5)];
+      rgb_index = (rgb_index + 1) % rgb_cycle;
+      // For below, flip the signs if the matrix is upside down or not. upside down is additive because i said so
+      matrix.drawPixel(x, y, color);
+      matrix.drawPixel(x + 1, y, color);
+      matrix.drawPixel(x, y + 1, color);
+      matrix.drawPixel(x + 1, y + 1, color);
+    } else {
+        matrix.drawPixel(x, y, color);
+        matrix.drawPixel(x + 1, y, matrix.Color(80, 80, 80));
+        matrix.drawPixel(x, y + 1, matrix.Color(80, 80, 80));
+    }
+    // here too :D
+
+   
+
     matrix.show();
-  }
+
 }
 
 // Fill the dots one after the other with a color
