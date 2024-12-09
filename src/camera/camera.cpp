@@ -8,7 +8,6 @@
 #include "../matrix/matrix.h"
 
 int IRsensorAddress = 0xB0;
-// int IRsensorAddress = 0x58;
 int slaveAddress;
 byte data_buf[16];
 int i;
@@ -45,86 +44,21 @@ void cameraSetup()
     delay(10);
     delay(100);
 }
-// void cameraLoop()
-// {
-//     // IR sensor read
-//     Wire.beginTransmission(slaveAddress);
-//     Wire.write(0x36);
-//     Wire.endTransmission();
-//     Wire.requestFrom(slaveAddress, 16); // Request the 2 byte heading (MSB comes first)
 
-//     for (i = 0; i < 16; i++)
-//     {
-//         data_buf[i] = 0;
-//     }
-
-//     i = 0;
-//     while (Wire.available() && i < 16)
-//     {
-//         data_buf[i] = Wire.read();
-//         i++;
-//     }
-
-//     Ix[0] = data_buf[1];
-//     Iy[0] = data_buf[2];
-//     s = data_buf[3];
-//     Ix[0] += (s & 0x30) << 4;
-//     Iy[0] += (s & 0xC0) << 2;
-
-//     Ix[1] = data_buf[4];
-//     Iy[1] = data_buf[5];
-//     s = data_buf[6];
-//     Ix[1] += (s & 0x30) << 4;
-//     Iy[1] += (s & 0xC0) << 2;
-
-//     Ix[2] = data_buf[7];
-//     Iy[2] = data_buf[8];
-//     s = data_buf[9];
-//     Ix[2] += (s & 0x30) << 4;
-//     Iy[2] += (s & 0xC0) << 2;
-
-//     Ix[3] = data_buf[10];
-//     Iy[3] = data_buf[11];
-//     s = data_buf[12];
-//     Ix[3] += (s & 0x30) << 4;
-//     Iy[3] += (s & 0xC0) << 2;
-
-//     for (i = 0; i < 4; i++)
-//     {
-//         if (Ix[i] < 1000)
-//             Serial.print("");
-//         if (Ix[i] < 100)
-//             Serial.print("");
-//         if (Ix[i] < 10)
-//             Serial.print("");
-//         Serial.print(int(Ix[i]));
-//         Serial.print(",");
-//         if (Iy[i] < 1000)
-//             Serial.print("");
-//         if (Iy[i] < 100)
-//             Serial.print("");
-//         if (Iy[i] < 10)
-//             Serial.print("");
-//         Serial.print(int(Iy[i]));
-//         if (i < 3)
-//             Serial.print(",");
-//         setCursor(Ix[i], Iy[i]);
-//         delay(20);
-//     }
-//     Serial.println("");
-//     delay(15);
-// }
+int lastObservedX = 0;
+int lastObservedY = 0;
 
 void cameraLoop()
 {
-    //IR sensor read
+    // IR sensor read
     Wire.beginTransmission(slaveAddress);
     Wire.write(0x36);
     Wire.endTransmission();
 
     Wire.requestFrom(slaveAddress, 16);        // Request the 2 byte heading (MSB comes first)
-    for (i=0;i<16;i++) { data_buf[i]=0; }
-    i=0;
+    for (int i = 0;i < 16; i++) { data_buf[i] = 0; }
+
+    int i=0;
     while(Wire.available() && i < 16) {
         data_buf[i] = Wire.read();
         i++;
@@ -132,7 +66,7 @@ void cameraLoop()
 
     Ix[0] = data_buf[1];
     Iy[0] = data_buf[2];
-    s   = data_buf[3];
+    s = data_buf[3];
     Ix[0] += (s & 0x30) <<4;
     Iy[0] += (s & 0xC0) <<2;
 
@@ -176,7 +110,14 @@ void cameraLoop()
     }
 
     // Lets assume one IR source is present
-    setCursor(1023 - Ix[0], Iy[0]);
+    if(Ix[0] != 1023 && Iy[0] != 1023) {
+        setCursor(1023 - Ix[0], Iy[0]);
+        lastObservedX = 1023 - Ix[0];
+        lastObservedY = Iy[0];
+    } else {
+        // If there's no data, just set the cursor to the last point it was observed at
+        setCursor(lastObservedX, lastObservedY);
+    }
 
     Serial.println("");
     delay(10);

@@ -48,40 +48,32 @@ void matrixLoop()
 {
 }
 
+// Will still require matrix.show() after calling this function      
+// For below, flip the signs if the matrix is upside down or not. upside down is additive because i said so
+void drawCursor(int x, int y, uint16_t color)
+{
+  matrix.drawPixel(x, y, color);
+}
+
 // Arguments x and y are the original 1023x1023 coordinates from the camera
 void setCursor(int x, int y)
 {
   // Convert the 1023x1023 coordinates to 32x8 coordinates, handle edge cases idk
-  x = map(x, 0, 1023, 1, 32);
+  x = map(x, 0, 1020, 0, 32);
   y = map(y, 0, 800, 0, 8);
 
   uint16_t colors[] = { matrix.Color(255, 0, 0), matrix.Color(255, 255, 0), matrix.Color(0, 255, 0), matrix.Color(0, 255, 255), matrix.Color(255, 0, 255), matrix.Color(0, 0, 255) };
-
-
     uint16_t color = matrix.Color(180, 180, 180);
 
     int buttonState = digitalRead(BUTTON);
     if (buttonState == LOW) matrix.clear();
 
-    if (buttonState == HIGH) {
+    if (buttonState == HIGH) { // SELECTED (CLICKED)
       color = colors[map(rgb_index, 0, rgb_cycle, 0, 5)];
       rgb_index = (rgb_index + 1) % rgb_cycle;
-      // For below, flip the signs if the matrix is upside down or not. upside down is additive because i said so
-      matrix.drawPixel(x, y, color);
-      matrix.drawPixel(x + 1, y, color);
-      matrix.drawPixel(x, y + 1, color);
-      matrix.drawPixel(x + 1, y + 1, color);
-    } else {
-        matrix.drawPixel(x, y, color);
-        matrix.drawPixel(x + 1, y, matrix.Color(80, 80, 80));
-        matrix.drawPixel(x, y + 1, matrix.Color(80, 80, 80));
-    }
-    // here too :D
+    } 
 
-   
+    drawCursor(x, y, color);
 
     matrix.show();
-
 }
-
-// Fill the dots one after the other with a color
