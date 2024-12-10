@@ -1,19 +1,26 @@
 #include "gyro/gyro.h"
 #include "matrix/matrix.h"
-#include "camera/camera.h"
-
+#include "cursor/cursor.h"
+#include "game/GameObject/GameObject.h"
 void setup()
 {
-    // gyroSetup();
     matrixSetup();
     cameraSetup();
 }
 
+int gameIndex = 0; // 0 for menu
+
 void loop()
 {
-    // gyroLoop();
-    //  matrixLoop();
     cameraLoop();
+    // GameManager gameManager;
+    // gameManager.run();
+
+    // games[gameIndex].update()
+
+    // This runs every time and determines the game speed!!!
+    showMatrix();
+    delay(10);
 }
 
 // #include <Wire.h>

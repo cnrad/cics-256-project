@@ -9,10 +9,13 @@
 
 void matrixSetup();
 void setCursor(int x, int y);
-void matrixLoop();
-void colorWipe(uint32_t c, uint8_t wait);
-void rainbow(uint8_t wait);
-void theaterChase(uint32_t c, uint8_t wait);
-uint32_t Wheel(byte WheelPos);
+void clearCursor(int x, int y);
+void showMatrix();
+void drawRect(int x, int y, int w, int h, uint16_t color);
+void fillRect(int x, int y, int w, int h, uint16_t color);
+void drawChar(int x, int y, char letter, uint16_t color);
+void drawString(int x, int y, String text, uint16_t color);
+void scrollText(String text, uint16_t color);
+uint16_t color(int r, int g, int b);
 
 #endif
