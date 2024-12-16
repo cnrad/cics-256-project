@@ -1,43 +1,48 @@
-#include "Game.h"
-#include "src/game/GameObject/GameObject.h"
+// #include "Game.h"
+// #include "src/game/GameObject/GameObject.h"
 
-class MenuGame : public Game
-{
-    GameObject **gameObjects;
+// class MenuGame : public Game
+// {
+//     GameObject **gameObjects;
 
-    MenuGame()
-    {
-        gameObjects = new GameObject *[10];
-        for (int i = 0; i < 10; ++i)
-        {
-            gameObjects[i] = nullptr;
-        }
+//     MenuGame()
+//     {
+//         gameObjects = new GameObject *[10];
+//         for (int i = 0; i < 10; ++i)
+//         {
+//             gameObjects[i] = nullptr;
+//         }
 
-        gameObjects[0] = new GameRect(0, 0, 32, 32, color(255, 0, 0));
-    }
+//         gameObjects[0] = new GameRect(0, 0, 32, 32, color(255, 0, 0));
 
-    void start() override
-    {
-        gameObjects[0] = new GameRect(0, 0, 32, 32, color(255, 0, 0));
-    }
+//         gameObjects[0]->onHover = []()
+//         {
+//             Serial.println("Hovered");
+//         };
+//     }
 
-    void update() override
-    {
-        for (int i = 0; i < 10; ++i)
-        {
-            if (gameObjects[i] != nullptr)
-            {
-                gameObjects[i]->onLoop();
-            }
-        }
-    }
+//     void start() override
+//     {
+//         gameObjects[0] = new GameRect(0, 0, 32, 32, color(255, 0, 0));
+//     }
 
-    ~MenuGame()
-    {
-        for (int i = 0; i < 10; ++i)
-        {
-            delete gameObjects[i];
-        }
-        delete[] gameObjects;
-    }
-};
+//     void update() override
+//     {
+//         for (int i = 0; i < 10; ++i)
+//         {
+//             if (gameObjects[i] != nullptr)
+//             {
+//                 gameObjects[i]->onLoop();
+//             }
+//         }
+//     }
+
+//     ~MenuGame()
+//     {
+//         for (int i = 0; i < 10; ++i)
+//         {
+//             delete gameObjects[i];
+//         }
+//         delete[] gameObjects;
+//     }
+// };

@@ -1,46 +1,47 @@
-#include <Adafruit_NeoMatrix.h>
-#include "matrix.h"
+#include <Adafruit_Protomatter.h>
 #include "src/cursor/cursor.h"
 #include <string>
-using namespace std;
 
-#define PIN 5         // Arduino pin 6 to DIN of 8x32 matrix.
-#define LED_COUNT 256 // 8x32 = 256 NeoPixel leds
+#define LED_COUNT 512 // 16x32 = 256 NeoPixel leds
 #define BRIGHTNESS 30 // to reduce current for 256 NeoPixels
 
 #define MATRIX_WIDTH 32
-#define MATRIX_HEIGHT 8
+#define MATRIX_HEIGHT 16
 #define MATRIX_LAYOUT (NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG)
-// MATRIX DECLARATION:
-// Parameter 1 = width of NeoPixel matrix
-// Parameter 2 = height of matrix
-// Parameter 3 = pin number (most are valid)
-// Parameter 4 = matrix layout flags, add together as needed:
-//   NEO_MATRIX_TOP, NEO_MATRIX_BOTTOM, NEO_MATRIX_LEFT, NEO_MATRIX_RIGHT:
-//     Position of the FIRST LED in the matrix; pick two, e.g.
-//     NEO_MATRIX_TOP + NEO_MATRIX_LEFT for the top-left corner.
-//   NEO_MATRIX_ROWS, NEO_MATRIX_COLUMNS: LEDs are arranged in horizontal
-//     rows or in vertical columns, respectively; pick one or the other.
-//   NEO_MATRIX_PROGRESSIVE, NEO_MATRIX_ZIGZAG: all rows/columns proceed
-//     in the same order, or alternate lines reverse direction; pick one.
-//   See example below for these values in action.
-// Parameter 5 = pixel type flags, add together as needed:
-//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
-//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
-//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(MATRIX_WIDTH, MATRIX_HEIGHT, PIN,
-                                               MATRIX_LAYOUT,
-                                               NEO_GRB + NEO_KHZ800);
 
-int rgb_cycle = 10;
-int rgb_index = 0;
+#define A A16
+#define B A17
+#define C A5
+#define NC A4
+
+#define OE 23
+#define LAT 19
+#define CLK 18
+#define G1 2  // 2/LED
+#define G2 13 //
+#define R1 4
+#define R2 12
+#define B5 15
+#define B2 5
+uint8_t rgbPins[] = {R1, G1, B5, R2, G2, B2};
+uint8_t addrPins[] = {A, B, C, NC};
+
+Adafruit_Protomatter matrix = Adafruit_Protomatter(MATRIX_WIDTH, 4, 1, rgbPins, 3, addrPins, CLK, LAT, OE, false);
 
 void matrixSetup()
 {
-  matrix.begin();
-  matrix.show();                    // Initialize all pixels to 'off'
-  matrix.setBrightness(BRIGHTNESS); // overall brightness
+  // Initialize matrix...
+  Serial.println("Starting...");
+
+  ProtomatterStatus status = matrix.begin();
+
+  if (status != PROTOMATTER_OK)
+  {
+    Serial.print("PROTOMATTER NOT OK: ");
+    Serial.println((int)status);
+  };
+
+  matrix.show(); // Initialize all pixels to 'off'
 }
 
 // Will still require matrix.show() after calling this function
@@ -48,22 +49,24 @@ void matrixSetup()
 void drawCursor(int x, int y, uint16_t color)
 {
   matrix.drawPixel(x, y, color);
+  matrix.drawPixel(x, y, color);
+  matrix.drawPixel(x, y, color);
+  matrix.drawPixel(x, y, color);
+  matrix.drawPixel(x, y, color);
 }
 
 // Arguments x and y are the original 1023x1023 coordinates from the camera
 void setCursor(int x, int y)
 {
-  // Convert the 1023x1023 coordinates to 32x8 coordinates, handle edge cases idk
+  // Convert the 1023x1023 coordinates to 32x16 coordinates, handle edge cases idk
   x = map(x, 0, 1020, 0, 32);
-  y = map(y, 0, 800, 0, 8);
+  y = map(y, 0, 800, 0, 16);
 
-  uint16_t colors[] = {matrix.Color(255, 0, 0), matrix.Color(255, 255, 0), matrix.Color(0, 255, 0), matrix.Color(0, 255, 255), matrix.Color(255, 0, 255), matrix.Color(0, 0, 255)};
-  uint16_t color = matrix.Color(180, 180, 180);
+  uint16_t color = matrix.color565(180, 180, 180);
 
   if (buttonPressed())
   { // SELECTED (CLICKED)
-    color = colors[map(rgb_index, 0, rgb_cycle, 0, 5)];
-    rgb_index = (rgb_index + 1) % rgb_cycle;
+    color = matrix.color565(255, 255, 255);
   }
 
   drawCursor(x, y, color);
@@ -73,8 +76,8 @@ void clearCursor(int x, int y)
 {
   // Convert the 1023x1023 coordinates to 32x8 coordinates, handle edge cases idk
   x = map(x, 0, 1020, 0, 32);
-  y = map(y, 0, 800, 0, 8);
-  matrix.drawPixel(x, y, matrix.Color(0, 0, 0));
+  y = map(y, 0, 800, 0, 16);
+  matrix.drawPixel(x, y, matrix.color565(0, 0, 0));
 }
 
 void drawRect(int x, int y, int w, int h, uint16_t color)
@@ -87,39 +90,37 @@ void fillRect(int x, int y, int w, int h, uint16_t color)
   matrix.fillRect(x, y, w, h, color);
 }
 
-const uint8_t font[26][4] = {
-    {0b111, 0b101, 0b111, 0b101}, // A
-    {0b110, 0b101, 0b110, 0b101}, // B
-    {0b111, 0b100, 0b100, 0b111}, // C
-    {0b110, 0b101, 0b101, 0b110}, // D
-    {0b111, 0b100, 0b110, 0b111}, // E
-    {0b111, 0b100, 0b110, 0b100}, // F
-    {0b111, 0b100, 0b101, 0b111}, // G
-    {0b101, 0b101, 0b111, 0b101}, // H
-    {0b111, 0b010, 0b010, 0b111}, // I
-    {0b111, 0b001, 0b001, 0b110}, // J
-    {0b101, 0b110, 0b110, 0b101}, // K
-    {0b100, 0b100, 0b100, 0b111}, // L
-    {0b101, 0b111, 0b101, 0b101}, // M
-    {0b101, 0b111, 0b111, 0b101}, // N
-    {0b111, 0b101, 0b101, 0b111}, // O
-    {0b111, 0b101, 0b111, 0b100}, // P
-    {0b111, 0b101, 0b111, 0b011}, // Q
-    {0b111, 0b101, 0b111, 0b101}, // R
-    {0b111, 0b100, 0b111, 0b011}, // S
-    {0b111, 0b010, 0b010, 0b010}, // T
-    {0b101, 0b101, 0b101, 0b111}, // U
-    {0b101, 0b101, 0b101, 0b010}, // V
-    {0b101, 0b101, 0b111, 0b101}, // W
-    {0b101, 0b010, 0b010, 0b101}, // X
-    {0b101, 0b101, 0b111, 0b010}, // Y
-    {0b111, 0b010, 0b010, 0b111}  // Z
+const uint8_t font[26][6] = {
+    {0b111111, 0b100001, 0b100001, 0b111111, 0b100001, 0b100001}, // A
+    {0b111110, 0b100001, 0b111110, 0b100001, 0b100001, 0b111110}, // B
+    {0b111111, 0b100000, 0b100000, 0b100000, 0b100000, 0b111111}, // C
+    {0b111110, 0b100001, 0b100001, 0b100001, 0b100001, 0b111110}, // D
+    {0b111111, 0b100000, 0b111111, 0b100000, 0b100000, 0b111111}, // E
+    {0b111111, 0b100000, 0b111111, 0b100000, 0b100000, 0b100000}, // F
+    {0b111111, 0b100000, 0b100111, 0b100001, 0b100001, 0b111111}, // G
+    {0b100001, 0b100001, 0b111111, 0b100001, 0b100001, 0b100001}, // H
+    {0b111111, 0b001000, 0b001000, 0b001000, 0b001000, 0b111111}, // I
+    {0b111111, 0b000001, 0b000001, 0b000001, 0b100001, 0b111111}, // J
+    {0b100001, 0b100010, 0b111100, 0b100010, 0b100001, 0b100001}, // K
+    {0b100000, 0b100000, 0b100000, 0b100000, 0b100000, 0b111111}, // L
+    {0b100001, 0b110011, 0b101101, 0b100001, 0b100001, 0b100001}, // M
+    {0b100001, 0b110001, 0b101001, 0b100101, 0b100011, 0b100001}, // N
+    {0b111111, 0b100001, 0b100001, 0b100001, 0b100001, 0b111111}, // O
+    {0b111111, 0b100001, 0b111111, 0b100000, 0b100000, 0b100000}, // P
+    {0b111111, 0b100001, 0b100001, 0b100101, 0b100011, 0b111111}, // Q
+    {0b111111, 0b100001, 0b111111, 0b100010, 0b100001, 0b100001}, // R
+    {0b111111, 0b100000, 0b111111, 0b000001, 0b000001, 0b111111}, // S
+    {0b111111, 0b001000, 0b001000, 0b001000, 0b001000, 0b001000}, // T
+    {0b100001, 0b100001, 0b100001, 0b100001, 0b100001, 0b111111}, // U
+    {0b100001, 0b100001, 0b100001, 0b100001, 0b010010, 0b001100}, // V
+    {0b100001, 0b100001, 0b100001, 0b101101, 0b110011, 0b100001}, // W
+    {0b100001, 0b010010, 0b001100, 0b001100, 0b010010, 0b100001}, // X
+    {0b100001, 0b100001, 0b010010, 0b001100, 0b001000, 0b001000}, // Y
+    {0b111111, 0b000010, 0b000100, 0b001000, 0b010000, 0b111111}  // Z
 };
 
 void drawChar(int x, int y, char letter, uint16_t color)
 {
-  // Define a simple 3x4 font for letters A-Z
-
   // Convert letter to uppercase and get the index
   letter = toupper(letter);
   if (letter < 'A' || letter > 'Z')
@@ -127,11 +128,11 @@ void drawChar(int x, int y, char letter, uint16_t color)
   int index = letter - 'A';
 
   // Draw the character
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < 6; i++)
   {
-    for (int j = 0; j < 3; j++)
+    for (int j = 0; j < 6; j++)
     {
-      if (font[index][i] & (1 << (2 - j)))
+      if (font[index][i] & (1 << (5 - j)))
       {
         matrix.drawPixel(x + j, y + i, color);
       }
@@ -139,7 +140,7 @@ void drawChar(int x, int y, char letter, uint16_t color)
   }
 }
 
-void drawString(int x, int y, String text, uint16_t color)
+void drawString(int x, int y, std::string text, uint16_t color)
 {
   for (int i = 0; i < text.length(); i++)
   {
@@ -147,7 +148,7 @@ void drawString(int x, int y, String text, uint16_t color)
   }
 }
 
-void scrollText(String text, uint16_t color)
+void scrollText(std::string text, uint16_t color, int y)
 {
   unsigned long time = millis();
   int textLength = text.length();
@@ -157,8 +158,8 @@ void scrollText(String text, uint16_t color)
   {
     if (millis() - time > 100)
     {
-      drawString(x + 1, 0, text, matrix.Color(0, 0, 0));
-      drawString(x, 0, text, color);
+      drawString(x + 1, y, text, matrix.color565(0, 0, 0));
+      drawString(x, y, text, color);
       matrix.show();
       x--;
       time = millis();
@@ -166,12 +167,22 @@ void scrollText(String text, uint16_t color)
   }
 }
 
-uint16_t color(int r, int g, int b)
+uint16_t color(int _r, int _g, int _b)
 {
-  return matrix.Color(r, g, b);
+
+  int r = map(_r, 0, 255, 0, 32);
+  int g = map(_g, 0, 255, 0, 64);
+  int b = map(_b, 0, 255, 0, 32);
+
+  return matrix.color565(r, g, b);
 }
 
 void showMatrix()
 {
   matrix.show();
+}
+
+void clearMatrix()
+{
+  matrix.fillRect(0, 0, 32, 16, color(0, 0, 0));
 }

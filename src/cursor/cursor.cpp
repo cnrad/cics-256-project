@@ -146,7 +146,7 @@ int *getCursorCoords()
   static int cursorCoords[2];
 
   int x = map(lastObservedX, 0, 1020, 0, 32);
-  int y = map(lastObservedY, 0, 800, 0, 8);
+  int y = map(lastObservedY, 0, 800, 0, 16);
 
   cursorCoords[0] = x;
   cursorCoords[1] = y;
