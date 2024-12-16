@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <random>
-#include "src/Matrix/matrix.h"
-#include "src/Cursor/cursor.h"
+#include "src/Matrix/Matrix.h"
+#include "src/Cursor/Cursor.h"
 #include <string>
 #include <sstream>
 

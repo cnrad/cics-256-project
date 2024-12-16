@@ -1,5 +1,5 @@
 #include <Adafruit_Protomatter.h>
-#include "src/cursor/cursor.h"
+#include "src/Cursor/Cursor.h"
 #include <string>
 
 #define LED_COUNT 512 // 16x32 = 256 NeoPixel leds

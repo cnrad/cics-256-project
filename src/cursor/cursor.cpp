@@ -4,8 +4,8 @@
 
 #include <Wire.h>
 #include <Arduino.h>
-#include "cursor.h"
-#include "../matrix/matrix.h"
+#include "Cursor.h"
+#include "../Matrix/Matrix.h"
 
 #define BUTTON 26
 

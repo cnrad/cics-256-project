@@ -1,9 +1,17 @@
-#include "gyro/gyro.h"
-#include "matrix/matrix.h"
-#include "cursor/cursor.h"
-#include "game/GameObject/GameObject.h"
-#include "game/Games/Simon/Simon.h"
+// #include "gyro/gyro.h"
+#include "Matrix/Matrix.h"
+#include "Cursor/Cursor.h"
+#include "Games/Simon/Simon.h"
+#include "Games/Menu/Menu.h"
 #include <stdlib.h>
+
+enum Game
+{
+    MENU,
+    SIMON,
+};
+
+static enum Game game = MENU;
 
 void setup()
 {
@@ -15,18 +23,21 @@ void setup()
 
 void loop()
 {
-    // Reset matrix state every loop so we can redraw it from scratch
-    clearMatrix();
+    clearMatrix(); // Reset matrix state so we can redraw it from scratch every time
 
-    // GameManager gameManager;
-    // gameManager.run();
+    // Determine which event loop to run
+    if (game == SIMON)
+    {
+        SimonLoop();
+    }
+    else
+    {
+        MenuLoop();
+    }
 
-    // games[gameIndex].update()
-
-    SimonLoop();
-
-    cameraLoop();
-
-    showMatrix();
-    delay(10); // This runs every time and determines the game speed!!!
+    cameraLoop(); // For cursor positioning and display
+    showMatrix(); // Shows the matrix lmao
+    delay(10);    // This runs every time and determines the game speed!!!
 }
+
+// TODO: spamming the button (3 times within a short time frame) should take them to the menu - aka setting game to MENU
