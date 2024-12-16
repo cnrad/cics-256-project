@@ -40,8 +40,6 @@ void matrixSetup()
     Serial.print("PROTOMATTER NOT OK: ");
     Serial.println((int)status);
   };
-
-  matrix.show(); // Initialize all pixels to 'off'
 }
 
 // Will still require matrix.show() after calling this function
@@ -49,10 +47,8 @@ void matrixSetup()
 void drawCursor(int x, int y, uint16_t color)
 {
   matrix.drawPixel(x, y, color);
-  matrix.drawPixel(x, y, color);
-  matrix.drawPixel(x, y, color);
-  matrix.drawPixel(x, y, color);
-  matrix.drawPixel(x, y, color);
+  matrix.drawPixel(x + 1, y, color);
+  matrix.drawPixel(x, y + 1, color);
 }
 
 // Arguments x and y are the original 1023x1023 coordinates from the camera
@@ -90,7 +86,7 @@ void fillRect(int x, int y, int w, int h, uint16_t color)
   matrix.fillRect(x, y, w, h, color);
 }
 
-const uint8_t font[26][6] = {
+const uint8_t font[37][6] = {
     {0b111111, 0b100001, 0b100001, 0b111111, 0b100001, 0b100001}, // A
     {0b111110, 0b100001, 0b111110, 0b100001, 0b100001, 0b111110}, // B
     {0b111111, 0b100000, 0b100000, 0b100000, 0b100000, 0b111111}, // C
@@ -116,16 +112,33 @@ const uint8_t font[26][6] = {
     {0b100001, 0b100001, 0b100001, 0b101101, 0b110011, 0b100001}, // W
     {0b100001, 0b010010, 0b001100, 0b001100, 0b010010, 0b100001}, // X
     {0b100001, 0b100001, 0b010010, 0b001100, 0b001000, 0b001000}, // Y
-    {0b111111, 0b000010, 0b000100, 0b001000, 0b010000, 0b111111}  // Z
+    {0b111111, 0b000010, 0b000100, 0b001000, 0b010000, 0b111111}, // Z
+    {0b111111, 0b100001, 0b100001, 0b100001, 0b100001, 0b111111}, // 0
+    {0b001000, 0b011000, 0b001000, 0b001000, 0b001000, 0b011100}, // 1
+    {0b111111, 0b000001, 0b111111, 0b100000, 0b100000, 0b111111}, // 2
+    {0b111111, 0b000001, 0b111111, 0b000001, 0b000001, 0b111111}, // 3
+    {0b100001, 0b100001, 0b111111, 0b000001, 0b000001, 0b000001}, // 4
+    {0b111111, 0b100000, 0b111111, 0b000001, 0b000001, 0b111111}, // 5
+    {0b111111, 0b100000, 0b111111, 0b100001, 0b100001, 0b111111}, // 6
+    {0b111111, 0b000001, 0b000010, 0b000100, 0b001000, 0b001000}, // 7
+    {0b111111, 0b100001, 0b111111, 0b100001, 0b100001, 0b111111}, // 8
+    {0b111111, 0b100001, 0b111111, 0b000001, 0b000001, 0b111111}, // 9
+    {0b000000, 0b001000, 0b000000, 0b001000, 0b000000, 0b000000}  // :
 };
 
 void drawChar(int x, int y, char letter, uint16_t color)
 {
   // Convert letter to uppercase and get the index
   letter = toupper(letter);
-  if (letter < 'A' || letter > 'Z')
-    return; // Only support A-Z
-  int index = letter - 'A';
+  int index;
+  if (letter >= 'A' && letter <= 'Z')
+    index = letter - 'A';
+  else if (letter >= '0' && letter <= '9')
+    index = letter - '0' + 26;
+  else if (letter == ':')
+    index = 36;
+  else
+    return; // Unsupported character
 
   // Draw the character
   for (int i = 0; i < 6; i++)
@@ -140,15 +153,15 @@ void drawChar(int x, int y, char letter, uint16_t color)
   }
 }
 
-void drawString(int x, int y, std::string text, uint16_t color)
+void drawString(int x, int y, String text, uint16_t color)
 {
   for (int i = 0; i < text.length(); i++)
   {
-    drawChar(x + i * 4, y, text[i], color);
+    drawChar(x + i * 7, y, text[i], color);
   }
 }
 
-void scrollText(std::string text, uint16_t color, int y)
+void scrollText(String text, uint16_t color, int y)
 {
   unsigned long time = millis();
   int textLength = text.length();

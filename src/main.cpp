@@ -3,6 +3,7 @@
 #include "cursor/cursor.h"
 #include "game/GameObject/GameObject.h"
 #include "game/Games/Simon/Simon.h"
+#include <stdlib.h>
 
 void setup()
 {
@@ -10,7 +11,6 @@ void setup()
 
     matrixSetup();
     cameraSetup();
-    SimonSetup();
 }
 
 void loop()

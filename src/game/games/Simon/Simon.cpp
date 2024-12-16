@@ -11,10 +11,7 @@ int score;               // The score of the player
 int playerSequenceIndex; // The index of the player's sequence repetition
 bool playerTurn = false; // Player turn? or nahh
 
-// std::random_device: Provides a non-deterministic random seed.
-std::random_device rd;
-// std::mt19937: A fast and high-quality random number generator.
-std::mt19937 gen(rd());
+bool isInitialized = false;
 
 /*
  * int random (int a, int b)
@@ -22,12 +19,7 @@ std::mt19937 gen(rd());
  */
 int random(int a, int b)
 {
-    // std::uniform_int_distribution<>: Ensures the generated number is uniformly distributed within the range [a, b]
-    std::uniform_int_distribution<> distrib(a, b);
-
-    // Generate the random number
-    int random_number = distrib(gen);
-
+    int random_number = rand() % 4; // Returns 0-3,
     return random_number;
 }
 
@@ -96,8 +88,12 @@ void clearSection(int section)
 void SimonSetup()
 {
     // Generate sequence and set variables
+    srand(millis());
+
     score = 0;
     playerTurn = false;
+    playerSequenceIndex = 0;
+
     for (int i = 0; i < 25; i++)
     {
         sequence[i] = random(0, 3);
@@ -106,6 +102,12 @@ void SimonSetup()
 
 void SimonLoop()
 {
+    if (!isInitialized)
+    {
+        SimonSetup();
+        isInitialized = true;
+    }
+
     if (!playerTurn)
     {
         // In this case, player cursor doesn't matter since we are showing them the sequence, so we can interrupt the main program flow
@@ -113,9 +115,10 @@ void SimonLoop()
         {
             showSection(sequence[i]);
             showMatrix();
-            delay(500);
+            delay(400);
             clearSection(sequence[i]);
             showMatrix();
+            delay(100);
         }
 
         playerTurn = true;
@@ -131,7 +134,7 @@ void SimonLoop()
 
             showSection(section); // Breaking out of the event loop both to show the color, and as a natural debounce
             showMatrix();
-            delay(500);
+            delay(150);
             clearSection(section);
             showMatrix();
 
@@ -145,17 +148,17 @@ void SimonLoop()
                     // Player completed the sequence correctly
                     score++;
                     playerTurn = false;
+                    delay(500); // A little time in between
                 }
             }
             else
             {
                 playerTurn = false;
 
-                String scoreString = "Score: " + String(score);
+                String scoreString = "Score:" + String(score);
 
                 scrollText(scoreString, color(255, 255, 255));
-
-                // quit loop somehow
+                isInitialized = false;
             }
         }
     }
