@@ -5,21 +5,22 @@
 #include "src/Cursor/Cursor.h"
 #include <string>
 #include <sstream>
+#include "src/Games/Game.h"
 
 int sequence[25];        // The sequence of the game
 int score;               // The score of the player
 int playerSequenceIndex; // The index of the player's sequence repetition
 bool playerTurn = false; // Player turn? or nahh
 
-bool isInitialized = false;
+bool isSimonInitialized = false;
 
 /*
  * int random (int a, int b)
- * @returns a random integer between 0 and a, inclusive
+ * @returns a random integer between a and b, inclusive
  */
 int random(int a, int b)
 {
-    int random_number = rand() % 4; // Returns 0-3,
+    int random_number = (rand() % (b - a + 1)) + a; // Returns 0-3,
     return random_number;
 }
 
@@ -102,10 +103,10 @@ void SimonSetup()
 
 void SimonLoop()
 {
-    if (!isInitialized)
+    if (!isSimonInitialized)
     {
         SimonSetup();
-        isInitialized = true;
+        isSimonInitialized = true;
     }
 
     if (!playerTurn)
@@ -155,10 +156,13 @@ void SimonLoop()
             {
                 playerTurn = false;
 
-                String scoreString = "Score:" + String(score);
+                drawString(2, 1, "Score: ", color(255, 255, 255));
+                drawString(2, 9, String(score), color(255, 255, 255));
 
-                scrollText(scoreString, color(255, 255, 255));
-                isInitialized = false;
+                showMatrix();
+                delay(2000);
+                isSimonInitialized = false;
+                game = MENU; // Send back to main menu
             }
         }
     }

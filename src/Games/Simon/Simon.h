@@ -7,11 +7,6 @@
 #include "src/Matrix/Matrix.h"
 #include "src/Cursor/Cursor.h"
 
-extern int sequence[25];
-extern int score;
-extern int playerSequenceIndex;
-extern bool playerTurn;
-
 int random(int a, int b);
 void SimonSetup();
 void SimonLoop();

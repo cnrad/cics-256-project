@@ -3,15 +3,11 @@
 #include "Cursor/Cursor.h"
 #include "Games/Simon/Simon.h"
 #include "Games/Menu/Menu.h"
+#include "Games/Game.h"
+#include "Games/AimTrainer/AimTrainer.h"
 #include <stdlib.h>
 
-enum Game
-{
-    MENU,
-    SIMON,
-};
-
-static enum Game game = MENU;
+Game game = MENU;
 
 void setup()
 {
@@ -19,6 +15,8 @@ void setup()
 
     matrixSetup();
     cameraSetup();
+
+    // scrollText("abcdefghijklmnopqrstuvwxyz1234567890:", color(255, 255, 255)); // Font testing
 }
 
 void loop()
@@ -29,6 +27,10 @@ void loop()
     if (game == SIMON)
     {
         SimonLoop();
+    }
+    else if (game == AIM_TRAINER)
+    {
+        AimTrainerLoop();
     }
     else
     {
