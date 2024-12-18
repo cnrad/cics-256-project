@@ -7,6 +7,7 @@ enum Game
 {
     MENU,
     SIMON,
+    DRAW,
     AIM_TRAINER
 };
 

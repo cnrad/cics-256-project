@@ -12,6 +12,7 @@ int timer;
 int x;
 int y;
 static const int totalTime = 16000;
+bool buttonWasPressed = false;
 
 bool isAimTrainerInitialized = false;
 
@@ -21,15 +22,19 @@ int generateXCoord()
 }
 int generateYCoord()
 {
-    return (rand() % 12) + 4;
+    return (rand() % 11) + 4;
 }
+
 void drawTarget(int x, int y)
 {
-    drawTarget(x, y, color(255, 255, 255));
+
+    drawRect(x - 1, y - 1, 3, 3, color(255, 255, 255));
+    drawRect(x, y, 1, 1, color(255, 0, 0));
 }
+
 void clearTarget(int x, int y)
 {
-    drawTarget(x, y, color(0, 0, 0));
+    drawRect(x - 1, y - 1, 3, 3, color(0, 0, 0));
 }
 
 void drawProgressBar(int timeLeft, int totalTime)
@@ -64,8 +69,11 @@ void AimTrainerLoop()
     else
     {
         unsigned long currentTime = millis();
-
-        if (buttonPressed())
+        if (!buttonPressed() && buttonWasPressed)
+        {
+            buttonWasPressed = false;
+        }
+        if (buttonPressed() && currentTime - targetLastTime >= 100 && !buttonWasPressed)
         {
             int *coords = getCursorCoords();
 
@@ -82,13 +90,9 @@ void AimTrainerLoop()
                 targetLastTime = currentTime;
                 aimScore++;
             }
-            else
-            {
-                aimScore--;
-            }
-            delay(100);
-        }
 
+            buttonWasPressed = true;
+        }
         if (timer > 0)
         {
             // Every second
@@ -97,7 +101,7 @@ void AimTrainerLoop()
                 timer -= 1000;
                 lastTime = currentTime;
             }
-
+            //
             if (targetVisible)
             {
                 drawTarget(x, y);

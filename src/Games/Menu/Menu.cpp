@@ -85,6 +85,11 @@ void MenuLoop()
     {
         fillBounds(&DrawBounds, color(255, 255, 255));
         drawString(2, 2, "Draw Mode", color(0, 255, 0));
+
+        if (buttonPressed())
+        {
+            game = DRAW;
+        }
     }
     else
     {
@@ -95,7 +100,7 @@ void MenuLoop()
     if (AimTrainerHovered)
     {
         fillBounds(&AimTrainerBounds, color(255, 255, 255));
-        drawString(2, 2, "Aim", color(255, 255, 0));
+        drawString(2, 2, "Aim", color(0, 255, 255));
 
         if (buttonPressed())
         {
@@ -104,6 +109,6 @@ void MenuLoop()
     }
     else
     {
-        fillBounds(&AimTrainerBounds, color(255, 255, 0));
+        fillBounds(&AimTrainerBounds, color(0, 255, 255));
     }
 }

@@ -50,14 +50,7 @@ void drawCursor(int x, int y, uint16_t color)
   matrix.drawPixel(x + 1, y, color);
   matrix.drawPixel(x, y + 1, color);
 }
-void drawTarget(int x, int y, uint16_t color)
-{
-  matrix.drawPixel(x, y, color);
-  matrix.drawPixel(x + 1, y, color);
-  matrix.drawPixel(x, y + 1, color);
-  matrix.drawPixel(x -1, y, color);
-  matrix.drawPixel(x , y-1, color);
-}
+
 // Arguments x and y are the original 1023x1023 coordinates from the camera
 void setCursor(int x, int y)
 {

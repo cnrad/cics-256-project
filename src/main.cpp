@@ -5,6 +5,7 @@
 #include "Games/Menu/Menu.h"
 #include "Games/Game.h"
 #include "Games/AimTrainer/AimTrainer.h"
+#include "Games/Draw/Draw.h"
 #include <stdlib.h>
 
 Game game = MENU;
@@ -31,6 +32,10 @@ void loop()
     else if (game == AIM_TRAINER)
     {
         AimTrainerLoop();
+    }
+    else if (game == DRAW)
+    {
+        DrawLoop();
     }
     else
     {

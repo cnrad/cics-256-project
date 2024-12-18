@@ -16,7 +16,6 @@ void drawRect(int x, int y, int w, int h, uint16_t color);
 void fillRect(int x, int y, int w, int h, uint16_t color);
 void drawChar(int x, int y, char letter, uint16_t color);
 void drawString(int x, int y, String text, uint16_t color);
-void drawTarget(int x, int y, uint16_t color);
 void scrollText(String text, uint16_t color, int y = 5);
 uint16_t color(int r, int g, int b);
 

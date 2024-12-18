@@ -136,8 +136,6 @@ void cameraLoop()
     // If there's no data, just set the cursor to the last point it was observed at
     setCursor(lastObservedX, lastObservedY);
   }
-
-  Serial.println("");
 }
 
 // Returns normalized 32x8 coords
