@@ -16,8 +16,6 @@ void setup()
 
     matrixSetup();
     cameraSetup();
-
-    // scrollText("abcdefghijklmnopqrstuvwxyz1234567890:", color(255, 255, 255)); // Font testing
 }
 
 void loop()
@@ -46,5 +44,3 @@ void loop()
     showMatrix(); // Shows the matrix lmao
     delay(10);    // This runs every time and determines the game speed!!!
 }
-
-// TODO: spamming the button (3 times within a short time frame) should take them to the menu - aka setting game to MENU
